@@ -7,22 +7,45 @@ namespace Serialization_Deserialization
 {
     class Program
     {
+        static DataContractJsonSerializer serializerDC;
+        static JavaScriptSerializer serializerJS; 
         static void Main(string[] args)
         {
+            Console.WriteLine("DataContractJsonSerializer");
             Serialization_DCJS();
+            Console.WriteLine("JavaScriptSerializer");
             Serialization_JSS();
         }
+
         public static void Serialization_DCJS()
         {
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Person));
+            serializerDC = new DataContractJsonSerializer(typeof(Person));
             MemoryStream stream = new MemoryStream();
-            serializer.WriteObject(stream, InitPerson());
+            serializerDC.WriteObject(stream, InitPerson());
+            Console.WriteLine("Deserialization");
+            Deserialization_DCJS(stream);
         }
+
         public static void Serialization_JSS()
         {
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            var json = serializer.Serialize(InitPerson());
+            serializerJS = new JavaScriptSerializer();
+            var json = serializerJS.Serialize(InitPerson());
             Console.WriteLine(json);
+            Console.WriteLine("Deserialization");
+            Deserialization_JSS(json);
+        }
+
+        public static void Deserialization_DCJS(MemoryStream stream)
+        {
+            stream.Position = 0;
+            Person person = (Person)serializerDC.ReadObject(stream);
+            Console.WriteLine($"Name: {person.Name} Surname {person.Surname} Adress {person.Adress}");
+        }
+
+        public static void Deserialization_JSS(string json)
+        {
+            Person person = serializerJS.Deserialize<Person>(json);
+            Console.WriteLine($"Name: {person.Name} Surname {person.Surname} Adress {person.Adress}");
         }
 
         public static Person InitPerson()
